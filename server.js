@@ -20,12 +20,12 @@ app.use(session({
 }))
 
 app.get('/', function (req, res) {
-    var sess = req.session
-    var name = sess.name
-    if (name == 'b') {
-        console.log('session') 
-    }
-    req.session.name = 'b'
+    //var sess = req.session
+    //var name = sess.name
+    //if (name == 'b') {
+    //    console.log('session') 
+    //}
+    //req.session.name = 'b'
     
     res.send('Hello World')
 })
@@ -75,6 +75,39 @@ app.post('/create', urlencodedParser, function (req, res) {
     res.status(200).json(response)
 })
 
+app.post('/update', urlencodedParser, function (req, res) {
+    console.log(req.session)
+    var response = {
+        "id" : req.body.id,
+        "category" : req.body.category,
+        "content" : req.body.content
+    }
+    var sess = req.session
+    var name = sess.name
+    if (name != null) {
+        console.log(name + ' update!!')
+        
+        db.update(req.body.id, req.body.category, req.body.content, function (content) {
+            res.send(content)
+        })
+    } else {
+        console.log(response)
+        res.status(401).json({'err' : 'login failed'})
+        console.log('login failed')
+    }
+    
+    //res.status(200).json(response)
+})
+
+app.post('/delete', urlencodedParser, function (req, res) {
+    var response = {
+        "id" : req.body.id
+    }
+    console.log(response)
+    db.delete(req.body.id)
+    res.status(200).json(response)
+})
+
 app.post('/upload', urlencodedParser, function (req, res) {
     console.log(req.session)
     var response = {
@@ -84,7 +117,6 @@ app.post('/upload', urlencodedParser, function (req, res) {
     var sess = req.session
     var name = sess.name
     if (name != null) {
-        console.log('session!!')
         console.log(name + ' upload!!')
         db.insert(req.body.content, req.body.category)
         db.list()

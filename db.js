@@ -9,7 +9,7 @@ var accountDB  = new sqlite3.Database(accountFile)
 
 function start () {
     blogDB.serialize(function () {
-        blogDB.run('CREATE TABLE IF NOT EXISTS  table01 (content TEXT,category TEXT)')
+        blogDB.run('CREATE TABLE IF NOT EXISTS  table01 (id INTEGER PRIMARY KEY,content TEXT,category TEXT)')
     })
     accountDB.serialize(function () {
         accountDB.run('CREATE TABLE IF NOT EXISTS  table01 (username TEXT,password TEXT)')
@@ -55,10 +55,39 @@ function list () {
 
 function list2 (callback) {
     blogDB.serialize(function () {
-        var sql = 'SELECT content,category FROM table01'
-        blogDB.all(sql, function(err, rows) {
+        var sql = 'SELECT id,content,category FROM table01'
+        blogDB.all(sql, function (err, rows) {
             console.log(JSON.stringify(rows))
             callback(JSON.stringify(rows))
+        });
+        
+    })
+}
+
+function update (id, category, content ,callback) {
+    blogDB.serialize(function () {
+        var sql = 'UPDATE table01 SET category=? WHERE id=?'
+        blogDB.run(sql, [category, id]);
+        sql = 'UPDATE table01 SET content=? WHERE id=?'
+        blogDB.run(sql, [content, id]);
+        sql = 'SELECT content,category FROM table01 WHERE id=?'
+        blogDB.all(sql, function (err, rows){
+            console.log(JSON.stringify(rows))
+            callback(JSON.stringify(rows))
+        })
+        
+    })
+}
+
+function del (id) {
+    blogDB.serialize(function () {
+        var sql = 'DELETE FROM table01 WHERE id = ?'
+        blogDB.run(sql,id, function (err) {
+            if (err) {
+                console.log(err)
+            } else {
+                console.log('delete success')
+            }
         });
         
     })
@@ -75,6 +104,8 @@ function createAccount (username, password) {
 exports.start  = start
 exports.insert = insert
 exports.list   = list
-exports.list2 = list2
+exports.list2  = list2
+exports.update = update
+exports.delete = del
 exports.create = createAccount
 exports.login  = login
