@@ -125,8 +125,13 @@ app.post('/upload', urlencodedParser, function (req, res) {
     if (name != null) {
         console.log(name + ' upload!!')
         db.insert(req.body.content, req.body.category)
-        db.list()
-        res.status(200).json(response)
+        .then(function(){
+            console.log(req.body.category + ' : ' + req.body.category)
+            res.status(200).json(response)
+        })
+        .catch(function(){
+
+        })
     } else {
         console.log(response)
         res.status(401).json({'err' : 'login failed'})

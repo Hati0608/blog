@@ -34,11 +34,13 @@ function login (username, password) {
 }
 
 function insert (content, category) {
+  return new Promise(function (resolve){
     blogDB.serialize(function () {
         var sql = 'INSERT INTO table01(content,category) VALUES (?,?)'
         blogDB.run(sql,[content, category])
     })
-    
+    resolve()
+  })    
 }
 
 /*function list () {
