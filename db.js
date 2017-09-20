@@ -98,10 +98,14 @@ function del (id) {
 }
 
 function createAccount (username, password) {
+  return new Promise(function(resolve){
     accountDB.serialize(function () {
         var sql = 'INSERT INTO table01(username,password) VALUES (?,?)'
         accountDB.run(sql,[username, password])
     })
+    resolve()
+  })
+    
 }
 
 

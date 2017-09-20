@@ -77,7 +77,13 @@ app.post('/create', urlencodedParser, function (req, res) {
     }
     console.log(response)
     db.create(req.body.username, req.body.password)
-    res.status(200).json(response)
+    .then(function(){
+        res.status(200).json(response)
+    })
+    .catch(function(){
+
+    })
+    
 })
 
 app.post('/update', urlencodedParser, function (req, res) {
