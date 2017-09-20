@@ -1,4 +1,5 @@
-var fs   = require('fs')
+var fs      = require('fs')
+var Promise = require('bluebird')
 
 var blogFile    = './blog.db'
 var accountFile = './account.db'
@@ -18,22 +19,18 @@ function start () {
     console.log('db start')
 }
 
-function login (username, password, callback) {
-    var check = false
+function login (username, password) {
+  return new Promise(function (resolve){
     accountDB.serialize(function () {
         var sql = 'SELECT password FROM table01 WHERE username=?'
         accountDB.each(sql, [username], function(err, row) {
             console.log('password :' + row.password)
             if (row.password === password) {
-                check = true
-                console.log('check true')
-                callback(null, true)
-            }
-            //callback('Username or password is wrong', null)
-            
+                resolve('true')
+            }         
         })
-        
     })
+  })   
 }
 
 function insert (content, category) {
@@ -44,27 +41,30 @@ function insert (content, category) {
     
 }
 
-function list () {
+/*function list () {
     blogDB.serialize(function () {
         var sql = 'SELECT content,category FROM table01'
         blogDB.each(sql, function(err, row) {
             console.log(row.category + ": " + row.content)
         })
     })
-}
+}*/
 
-function list2 (callback) {
+function list () {
+  return new Promise(function(resolve){
     blogDB.serialize(function () {
         var sql = 'SELECT id,content,category FROM table01'
         blogDB.all(sql, function (err, rows) {
             console.log(JSON.stringify(rows))
-            callback(JSON.stringify(rows))
+            resolve(JSON.stringify(rows))
         });
         
     })
+  })
 }
 
-function update (id, category, content ,callback) {
+function update (id, category, content) {
+  return new Promise(function (resolve, reject) {
     blogDB.serialize(function () {
         var sql = 'UPDATE table01 SET category=? WHERE id=?'
         blogDB.run(sql, [category, id]);
@@ -73,10 +73,12 @@ function update (id, category, content ,callback) {
         sql = 'SELECT content,category FROM table01 WHERE id=?'
         blogDB.all(sql, function (err, rows){
             console.log(JSON.stringify(rows))
-            callback(JSON.stringify(rows))
+            resolve(JSON.stringify(rows))
         })
         
     })
+  })
+    
 }
 
 function del (id) {
@@ -104,7 +106,7 @@ function createAccount (username, password) {
 exports.start  = start
 exports.insert = insert
 exports.list   = list
-exports.list2  = list2
+//exports.list2  = list2
 exports.update = update
 exports.delete = del
 exports.create = createAccount

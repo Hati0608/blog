@@ -1,5 +1,6 @@
 var express = require('express')
 var db      = require('./db')
+var Promise = require('bluebird')
 
 var app        = express()
 var session    = require('express-session')
@@ -31,8 +32,12 @@ app.get('/', function (req, res) {
 })
 
 app.get('/list', function (req, res) {
-    db.list2(function (content) {
+    db.list()
+    .then(function(content){
         res.send(content)
+    })
+    .catch(function(){
+
     })
     //res.send()
 })
@@ -43,19 +48,19 @@ app.post('/login', urlencodedParser, function (req, res) {
         "password" : req.body.password
     }
     console.log(response)
-    db.login(req.body.username, req.body.password, function (err, check) {
-        if (check) {
-            req.session.name = req.body.username    
-            res.redirect('/')
-            console.log(req.body.username + ' login')
-        } else {
-            req.session.name = ''
-            console.log('login failed')
-            res.send('login failed')
-        }
-        
+    db.login(req.body.username, req.body.password)
+    .then(function(result){
+        //console.log('login ' + result)
+        req.session.name = req.body.username    
+        res.send('login success')
+        //res.redirect('/')
+        console.log(req.body.username + ' login')
     })
-    //res.end(JSON.stringify(response))
+    .catch(function(err){
+        req.session.name = ''
+        console.log('login failed')
+        res.send('login failed')       
+    })
     
 })
 
@@ -87,16 +92,17 @@ app.post('/update', urlencodedParser, function (req, res) {
     if (name != null) {
         console.log(name + ' update!!')
         
-        db.update(req.body.id, req.body.category, req.body.content, function (content) {
+        db.update(req.body.id, req.body.category, req.body.content)
+        .then(function(result){
             res.send(content)
         })
-    } else {
-        console.log(response)
-        res.status(401).json({'err' : 'login failed'})
-        console.log('login failed')
+        .catch(function(err){
+            console.log(response)
+            res.status(401).json({'err' : 'login failed'})
+            console.log('login failed')
+        })      
     }
-    
-    //res.status(200).json(response)
+
 })
 
 app.post('/delete', urlencodedParser, function (req, res) {
