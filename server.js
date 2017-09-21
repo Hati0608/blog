@@ -99,14 +99,18 @@ app.post('/update', urlencodedParser, function (req, res) {
         console.log(name + ' update!!')
         
         db.update(req.body.id, req.body.category, req.body.content)
-        .then(function(result){
+        .then(function(content){
             res.send(content)
         })
         .catch(function(err){
             console.log(response)
-            res.status(401).json({'err' : 'login failed'})
-            console.log('login failed')
+            res.status(401).json({'err' : 'update failed'})
+            console.log('update failed')
         })      
+    } else {
+        console.log(response)
+        res.status(401).json({'err' : 'login failed'})
+        console.log('login failed')
     }
 
 })
