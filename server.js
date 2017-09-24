@@ -81,7 +81,7 @@ app.post('/create', urlencodedParser, function (req, res) {
         res.status(200).json(response)
     })
     .catch(function(){
-
+        res.status(401).json({'err' : 'login failed'})
     })
     
 })
@@ -116,12 +116,25 @@ app.post('/update', urlencodedParser, function (req, res) {
 })
 
 app.post('/delete', urlencodedParser, function (req, res) {
+    console.log(req.session)
     var response = {
-        "id" : req.body.id
+        "content"  : req.body.content,
+        "category" : req.body.category  
     }
-    console.log(response)
-    db.delete(req.body.id)
-    res.status(200).json(response)
+    var sess = req.session
+    var name = sess.name
+    if (name != null) {
+        var response = {
+            "id" : req.body.id
+        }
+        console.log(response)
+        db.delete(req.body.id)
+        res.status(200).json(response)
+    } else {
+        console.log(response)
+        res.status(401).json({'err' : 'delete failed'})
+        console.log('delete failed')
+    }
 })
 
 app.post('/upload', urlencodedParser, function (req, res) {
@@ -140,7 +153,7 @@ app.post('/upload', urlencodedParser, function (req, res) {
             res.status(200).json(response)
         })
         .catch(function(){
-
+            res.status(401).json({'err' : 'upload failed'})
         })
     } else {
         console.log(response)
